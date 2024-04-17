@@ -1,5 +1,7 @@
 import wollok.game.*
     
+//añadir màs teclas u objetos al juego, nuevos objetos que colisionen, frenar el reloj, etc.
+
 const velocidad = 250
 
 object juego{
@@ -10,10 +12,15 @@ object juego{
 		game.title("Dino Game")
 		game.addVisual(suelo)
 		game.addVisual(cactus)
+		game.addVisual(pterodactilo)
 		game.addVisual(dino)
 		game.addVisual(reloj)
+		game.addVisual(puntos)
 	
 		keyboard.space().onPressDo{ self.jugar()}
+		keyboard.f().onPressDo{ game.say(dino, "roarrr")}
+		//bloques, encerrar un objeto entre llaves guarda el objeto para cuando la tecla es presionada, 
+		//se usa para acciones que no se desea ejectuar aùn
 		
 		game.onCollideDo(dino,{ obstaculo => obstaculo.chocar()})
 		
@@ -23,6 +30,7 @@ object juego{
 		dino.iniciar()
 		reloj.iniciar()
 		cactus.iniciar()
+		pterodactilo.iniciar()
 	}
 	
 	method jugar(){
@@ -65,9 +73,15 @@ object reloj {
 		tiempo = 0
 		game.onTick(100,"tiempo",{self.pasarTiempo()})
 	}
+	
+	method tiempoActual() {
+		return tiempo
+	}
+	
 	method detener(){
 		game.removeTickEvent("tiempo")
 	}
+	
 }
 
 object cactus {
@@ -98,6 +112,34 @@ object cactus {
 	}
 }
 
+object pterodactilo {
+	 
+	var position = self.posicionInicial()
+
+	method image() = "pterodactilo.png"
+	method position() = position
+	
+	method posicionInicial() = game.at(game.width()-2,suelo.position().y())
+
+	method iniciar(){
+		position = self.posicionInicial()
+		game.onTick(velocidad,"moverPterodactilo",{self.mover()})
+	}
+	
+	method mover(){
+		position = position.left(2)
+		if (position.x() == -2)
+			position = self.posicionInicial()
+	}
+	
+	method chocar(){
+		juego.terminar()
+	}
+    method detener(){
+		game.removeTickEvent("moverPterodactilo")
+	}
+}
+
 object suelo{
 	
 	method position() = game.origin().up(1)
@@ -105,6 +147,17 @@ object suelo{
 	method image() = "suelo.png"
 }
 
+object puntos {
+	
+	var puntaje = 0
+	
+	method text() = puntaje.toString()
+	method position() = game.at(6, game.height()-1)
+	
+	method sumarPuntos() {
+		puntaje = reloj.tiempoActual() / 100
+	}
+}
 
 object dino {
 	var vivo = true
