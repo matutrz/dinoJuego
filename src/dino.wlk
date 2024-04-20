@@ -17,7 +17,7 @@ object juego{
 		game.addVisual(reloj)
 		game.addVisual(puntos)
 	
-		keyboard.space().onPressDo{ self.jugar()}
+		keyboard.space().onPressDo{ self.jugar() }
 		keyboard.f().onPressDo{ game.say(dino, "roarrr")}
 		//bloques, encerrar un objeto entre llaves guarda el objeto para cuando la tecla es presionada, 
 		//se usa para acciones que no se desea ejectuar aùn
@@ -31,6 +31,7 @@ object juego{
 		reloj.iniciar()
 		cactus.iniciar()
 		pterodactilo.iniciar()
+		puntos.iniciar()
 	}
 	
 	method jugar(){
@@ -47,6 +48,8 @@ object juego{
 		game.addVisual(gameOver)
 		cactus.detener()
 		reloj.detener()
+		pterodactilo.detener()
+		puntos.detener()
 		dino.morir()
 	}
 	
@@ -95,7 +98,7 @@ object cactus {
 
 	method iniciar(){
 		position = self.posicionInicial()
-		game.onTick(velocidad,"moverCactus",{self.mover()})
+		game.onTick(400,"moverCactus",{self.mover()})
 	}
 	
 	method mover(){
@@ -119,16 +122,16 @@ object pterodactilo {
 	method image() = "pterodactilo.png"
 	method position() = position
 	
-	method posicionInicial() = game.at(game.width()-2,suelo.position().y())
+	method posicionInicial() = game.at(game.width()-1,suelo.position().y())
 
 	method iniciar(){
 		position = self.posicionInicial()
-		game.onTick(velocidad,"moverPterodactilo",{self.mover()})
+		game.onTick(300,"moverPterodactilo",{self.mover()})
 	}
 	
 	method mover(){
-		position = position.left(2)
-		if (position.x() == -2)
+		position = position.left(1)
+		if (position.x() == -1)
 			position = self.posicionInicial()
 	}
 	
@@ -155,8 +158,18 @@ object puntos {
 	method position() = game.at(6, game.height()-1)
 	
 	method sumarPuntos() {
-		puntaje = reloj.tiempoActual() / 100
+		puntaje = puntaje + 1
 	}
+	
+	method iniciar(){
+		puntaje = 0
+		game.onTick(1000,"aumentarPuntaje",{self.sumarPuntos()})
+	}
+	
+	method detener(){
+		game.removeTickEvent("aumentarPuntaje")
+	}
+	
 }
 
 object dino {
